@@ -1,45 +1,9 @@
-# Next.js with TypeScript example
+# MUI
 
-## How to use
+The assignment is to make a mock swapping app in React. This is my first React project so it took some time to figure out.
 
-Download the example [or clone the repo](https://github.com/mui-org/material-ui):
+I'm picking up React quickly enough to finish in time but the product is not particularly stellar. My experience is in vanilla JS/TS and I wanted to showcase that a little. I made some functionality in the utilities folder with concepts I am used to working with. For example, `crypto.tsx` takes an array of initialization data and makes a model of crypto data (the three available currencies) for this project to use.
 
-<!-- #default-branch-switch -->
+In my projects I typically try to get all the manual initialization done in one location (and to minimize how much is necessary) and for this project it's all done in that one `cryptoDefs` array + the icon imports above it. Adding functionality for new coins consists of adding just one more parameter-object there. The code takes it from there, even figuring out which parameters can be used as crypto identifiers (i.e. names/keys) and setting up corresponding data structures automatically.
 
-```sh
-curl https://codeload.github.com/mui-org/material-ui/tar.gz/master | tar -xz --strip=2  material-ui-master/examples/nextjs-with-typescript
-cd nextjs-with-typescript
-```
-
-Install it and run:
-
-```sh
-npm install
-npm run dev
-```
-
-or:
-
-<!-- #default-branch-switch -->
-
-[![Edit on StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui-org/material-ui/tree/master/examples/nextjs-with-typescript)
-
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/mui-org/material-ui/tree/master/examples/nextjs-with-typescript)
-
-## The idea behind the example
-
-The project uses [Next.js](https://github.com/vercel/next.js), which is a framework for server-rendered React apps.
-It includes `@mui/material` and its peer dependencies, including `emotion`, the default style engine in MUI v5. If you prefer, you can [use styled-components instead](https://mui.com/guides/interoperability/#styled-components).
-
-## The link component
-
-Next.js has [a custom Link component](https://nextjs.org/docs/api-reference/next/link).
-The example folder provides adapters for usage with MUI.
-More information [in the documentation](https://mui.com/guides/routing/#next-js).
-
-## What's next?
-
-<!-- #default-branch-switch -->
-
-You now have a working example project.
-You can head back to the documentation, continuing browsing it from the [templates](https://mui.com/getting-started/templates/) section.
+This is the type of front-end integration where I really excel -- automating environment setup and the like. I can do classic front-end logic too but at the moment my progress is in that direction slowed by having to simultaneously pick up React. But I'm still making progress.
