@@ -1,14 +1,12 @@
 import * as React from 'react';
-import type { NextPage } from 'next';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Swap } from '../src/components/Swap';
 import { Pool } from '../src/components/Pool';
-
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import { setup as setupRateFetcher } from "../src/utility/rates";
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -45,6 +43,10 @@ function a11yProps(index: number) {
 
 // tabs taken from example at https://mui.com/components/tabs/
 export function Home() {
+  React.useEffect(() => {
+    setupRateFetcher();
+  }, []);
+
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: any, newValue: any) => {

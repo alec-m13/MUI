@@ -5,6 +5,7 @@ import { UnderConstruction } from "./HelpPanels/UnderConstruction";
 import { data as sideData, Side } from "./OneSideOfSwap";
 import { bind } from "../utility/binder";
 import { PropertySwapper } from "../utility/PropertySwapper";
+import { getRate } from "../utility/rates";
 
 type stateType = {
     fromCrypto: string,
@@ -53,6 +54,7 @@ export class Swap extends React.Component<{}, stateType> {
 
     swap() {
         this.setState(Swap.propertySwapper(this.state));
+        console.log(getRate("ETH", "ETH"));
     }
 
     swapClicked() {
