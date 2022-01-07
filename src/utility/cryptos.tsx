@@ -3,60 +3,67 @@ import ETHIcon from "../icons/ethereum.svg";
 import MATICIcon from "../icons/polygon.svg";
 
 export const srcs = {
-    AVAX: AVAXIcon.src,
-    ETH: ETHIcon.src,
-    MATIC: MATICIcon.src
+    avax: AVAXIcon.src,
+    eth: ETHIcon.src,
+    matic: MATICIcon.src
 }
 
 // for defining cryptos as per CoinGecko API
-interface CryptoD {
+export interface CryptoD {
     id: string,
     symbol: string,
     name: string
 }
 
+export const defaultCryptos: CryptoD[] = [
+    {
+        id: "avalanche-2",
+        symbol: "AVAX",
+        name: "Avalanche"
+    }/*, {
+        id: "binance-peg-avalanche",
+        symbol: "avax",
+        name: "Binance-Peg Avalanche"
+    }*/, {
+        id: "ethereum",
+        symbol: "eth",
+        name: "Ethereum"
+    }, {
+        id: "matic-network",
+        symbol: "matic",
+        name: "Polygon"
+    }
+]
+
 // extra data which can be computed from CryptoD data
 export interface Crypto extends CryptoD {
     iconSrc: string;
+    rates: any
 }
 
 export function iconFilter(callback: (x: CryptoD) => any, crypto: CryptoD) {
-    if (crypto.symbol.toUpperCase() in srcs) {
-        crypto.symbol = crypto.symbol.toUpperCase();
-        callback(crypto);
-    }
+    if (crypto.symbol.toLowerCase() in srcs) callback(crypto);
 }
 
 // defining all cryptos and their data
 export const cryptos: Crypto[] = [];
 
 export function getCryptos(callback: () => any, filter = iconFilter) {
-    var requestURL = 'https://api.coingecko.com/api/v3/coins/list';
-    var request = new XMLHttpRequest();
-    request.open('GET', requestURL);
-    request.responseType = 'json';
-    request.send();
-
-    request.onload = function() {
-        let raw = request.response as CryptoD[];
-        /*raw = [
-            {
-                id: "no",
-                symbol: "no",
-                name: "no"
-            }, {
-                id: "eth",
-                symbol: "eth",
-                name: "ethereum"
-            }
-        ];*/
+    let reqURL = 'https://api.coingecko.com/api/v3/coins/list';
+    let req = new XMLHttpRequest();
+    req.open('GET', reqURL);
+    req.responseType = 'json';
+    req.onload = req.onerror = function() {
+        let raw = req.response as CryptoD[];
+        if (!raw || !raw.length) raw = defaultCryptos;
         for (let crypto of raw) filter(handle, crypto);
         function handle(crypto: CryptoD) {
             // crypto has been filtered and determined keepable so keep it
-            let src = (srcs as any)[crypto.symbol]; // to get typescript to shut up
+            let src = (srcs as any)[crypto.symbol.toLowerCase()]; // weird way (to get ts to shut up) to read srcs object
             cryptos.push(Object.assign(
                 {
-                    iconSrc: src
+                    iconSrc: src,
+                    rates: {}
                 }, 
                 crypto
             ));
@@ -71,8 +78,28 @@ export function getCryptos(callback: () => any, filter = iconFilter) {
         }
         for (let prop of Array.from(props.keys())) if (!conflictProps.has(prop)) keys.set(prop, props.get(prop)
             || new Map()); // new map is only here to get the compiler to shut up
+        getMarkets(callback);
+    }
+    req.send();
+}
+
+export const rates: Map<string, number> = new Map();
+
+function getMarkets(callback: () => any) {
+    let reqURL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=" +
+    cryptos.map(crypto => crypto.id).join("%2C") +
+    "&order=market_cap_desc&per_page=" +
+    Math.min(250, cryptos.length) +
+    "&page=1&sparkline=false";
+    let req = new XMLHttpRequest();
+    req.open("GET", reqURL);
+    req.responseType = "json";
+    req.onload  = function() {
+        for (let entry of req.response) rates.set(entry.id, entry.current_price);
         callback();
     }
+    req.onerror = callback;
+    req.send();
 }
 
 // find any properties which can be used to identify cryptos (name, fullName, etc) and set up maps for them
@@ -85,5 +112,6 @@ export function getCrypto(keyType: string, key: string): Crypto {
 }
 
 export function getDatum(keyType: string, key: string, propName: keyof Crypto) {
-    return getCrypto(keyType, key)[propName];
+    let crypto = getCrypto(keyType, key);
+    if (crypto) return crypto[propName];
 }

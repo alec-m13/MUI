@@ -4,7 +4,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { Crypto, getCrypto, getDatum } from "../utility/cryptos";
+import { Crypto, getDatum } from "../utility/cryptos";
 import { Tooltip } from '@mui/material';
 
 export function CryptoSelect(props: {
