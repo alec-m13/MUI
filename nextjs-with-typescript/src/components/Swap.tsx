@@ -1,27 +1,42 @@
-import { Container } from "@mui/material";
+import { Button, Container } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import { UnderConstruction } from "./HelpPanels/UnderConstruction";
 import { data as sideData, Side } from "./OneSideOfSwap";
+import { bind } from "../utility/binder";
+import { PropertySwapper } from "../utility/PropertySwapper";
 
 export class Swap extends React.Component<{}, {
-    inCrypto: string,
-    outCrypto: string
+    fromCrypto: string,
+    toCrypto: string
 }> {
     constructor(props: any) {
         super(props);
         this.state = {
-            inCrypto: "ETH",
-            outCrypto: ""
+            fromCrypto: "ETH",
+            toCrypto: ""
         }
+        // bind some callback functions
+        bind(this, "updatedFrom");
+        bind(this, "updatedTo");
+        bind(this, "swap");
     }
 
     updatedFrom(data: sideData) {
-        alert("from: "+JSON.stringify(data));
+        this.setState({fromCrypto: data.crypto});
     }
 
     updatedTo(data: sideData) {
-        alert("to: "+JSON.stringify(data));
+        this.setState({toCrypto: data.crypto});
+    }
+
+    swap() {
+        /*console.log(this.state, Swap.propertySwapper(this.state));
+        this.setState(Swap.propertySwapper(this.state));
+        console.log(this.state);
+        let me = this;
+        window.setTimeout(function() {console.log(me.state)}, 1000);*/
+        this.setState({fromCrypto: this.state.toCrypto, toCrypto: this.state.fromCrypto});
     }
 
     render() {
@@ -38,14 +53,20 @@ export class Swap extends React.Component<{}, {
                 <p>Select a token to start swapping.</p>
                 <Side
                     from="true"
-                    show={this.state.inCrypto}
-                    disable={this.state.outCrypto}
+                    show={this.state.fromCrypto}
+                    disable={this.state.toCrypto}
                     updated={this.updatedFrom}
                 />
-                <button>⇅</button>
+                <Button
+                    size="large"
+                    color="primary"
+                    onClick={this.swap}
+                >
+                    ⇅
+                </Button>
                 <Side
-                    show={this.state.outCrypto}
-                    disable={this.state.inCrypto}
+                    show={this.state.toCrypto}
+                    disable={this.state.fromCrypto}
                     updated={this.updatedTo}
                 />
                 <button>Swap</button>
@@ -53,4 +74,6 @@ export class Swap extends React.Component<{}, {
             <UnderConstruction/>
         </Box>
     }
+
+    static propertySwapper = new PropertySwapper("from", "to").swap;
 }

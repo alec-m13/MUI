@@ -23,7 +23,7 @@ function TabPanel(props: any) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          {children}
         </Box>
       )}
     </div>
@@ -50,7 +50,7 @@ export function Home() {
   const handleChange = (event: any, newValue: any) => {
     setValue(newValue);
   };
-
+  
   return (
     <Container maxWidth="lg">
       <Box
@@ -78,30 +78,5 @@ export function Home() {
     </Container>
   );
 }
-
-
-  /*
-  return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          my: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4" component="h1" gutterBottom>
-          MUI v5 + Next.js with TypeScript example
-        </Typography>
-        <Link href="/about" color="secondary">
-          Go to the about page
-        </Link>
-        <ProTip />
-        <Copyright />
-      </Box>
-    </Container>
-  );*/
 
 export default Home;

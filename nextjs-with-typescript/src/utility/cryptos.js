@@ -14,23 +14,23 @@ const icons = {
     Polygon: PolygonIcon,
 }
 
-function invert(obj: any) {
-    let returner: any = {};
+function invert(obj) {
+    let returner = {};
     for (let prop in obj) returner[obj[prop]] = prop;
     return returner;
 }
 
 const fullNames = invert(acronyms);
 
-function fetch(prop: string, obj: any): string {
+function fetch(prop, obj) {
     return (prop in obj)? obj[prop]: prop;
 }
 
-export function acronym(fullName: string): string {
+export function acronym(fullName) {
     return fetch(fullName, acronyms);
 }
 
-export function fullName(acronym: string): string {
+export function fullName(acronym) {
     return fetch(acronym, fullNames);
 }
 
@@ -42,7 +42,7 @@ export const allNames = [
 
 export const allCryptos = allNames.map(x => acronym(x));
 
-export function iconSrc(name: string): string {
+export function iconSrc(name) {
     if (name in icons) return icons[name].src;
     name = fullName(name); // if name is actually an acronym
     if (name in icons) return icons[name].src;

@@ -16,16 +16,17 @@ icons.set("MATIC", MATICIcon.src);
 icons.set("AVAX", AVAXIcon.src);
 
 export function CryptoSelect(props: {show?: string, disable?: string, onChange: (crypto: string) => any}) {
-  const [crypto, setCrypto] = React.useState(props.show || "");
+  //const [crypto, setCrypto] = React.useState(props.show || "");
 
   const handleChange = (event: any) => {
-    setCrypto(event.target.value);
+    //setCrypto(event.target.value);
     props.onChange(event.target.value);
   };
 
   function makeOption(name: string) {
     return <MenuItem
         value={name}
+        key={name}
         disabled={name === props.disable}
     >
         <img src={icons.get(name)}/>
@@ -40,7 +41,7 @@ export function CryptoSelect(props: {show?: string, disable?: string, onChange: 
         <Select
           labelId="crypto-select-label"
           id="crypto-select"
-          value={crypto}
+          value={props.show || ""}
           label="Select"
           onChange={handleChange}
         >
