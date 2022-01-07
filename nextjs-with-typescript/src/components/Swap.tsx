@@ -22,6 +22,7 @@ export class Swap extends React.Component<{}, stateType> {
         bind(this, "updatedFrom");
         bind(this, "updatedTo");
         bind(this, "swap");
+        bind(this, "swapClicked");
     }
 
     updateState(prop: keyof stateType, val: any) {
@@ -42,6 +43,10 @@ export class Swap extends React.Component<{}, stateType> {
 
     swap() {
         this.setState(Swap.propertySwapper(this.state));
+    }
+
+    swapClicked() {
+        alert("swapping");
     }
 
 
@@ -89,7 +94,8 @@ export class Swap extends React.Component<{}, stateType> {
                     updated={this.updatedTo}
                 />
                 <Button
-                    disabled = {!this.isReady()}
+                    disabled={!this.isReady()}
+                    onClick={this.swapClicked}
                 >Swap{this.isReady()? "!": ""}</Button>
             </Box>
             <UnderConstruction/>

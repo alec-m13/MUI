@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { cryptos, getCrypto, getDatum } from "../utility/cryptos";
 
-export function CryptoSelect(props: {show?: string, disable?: string, onChange: (crypto: string) => any}) {
+export function CryptoSelect(props: {label: string, show?: string, disable?: string, onChange: (crypto: string) => any}) {
   //const [crypto, setCrypto] = React.useState(props.show || "");
 
   const handleChange = (event: any) => {
@@ -28,12 +28,12 @@ export function CryptoSelect(props: {show?: string, disable?: string, onChange: 
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth>
-        <InputLabel id="crypto-select-label">Select</InputLabel>
+        <InputLabel id="crypto-select-label">{props.label}</InputLabel>
         <Select
           labelId="crypto-select-label"
           id="crypto-select"
           value={props.show || ""}
-          label="Select"
+          label={props.label}
           onChange={handleChange}
         >
           {cryptos.map(crypto => makeOption(crypto.name))}
