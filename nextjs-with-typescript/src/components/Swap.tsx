@@ -6,10 +6,12 @@ import { data as sideData, Side } from "./OneSideOfSwap";
 import { bind } from "../utility/binder";
 import { PropertySwapper } from "../utility/PropertySwapper";
 
-export class Swap extends React.Component<{}, {
+type stateType = {
     fromCrypto: string,
     toCrypto: string
-}> {
+}
+
+export class Swap extends React.Component<{}, stateType> {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -22,21 +24,30 @@ export class Swap extends React.Component<{}, {
         bind(this, "swap");
     }
 
+    updateState(prop: keyof stateType, val: any) {
+        this.setState(function(state) {
+            let obj: any = {};
+            obj[prop] = val;
+            return obj;
+        });
+    }
+
     updatedFrom(data: sideData) {
-        this.setState({fromCrypto: data.crypto});
+        this.updateState("fromCrypto", data.crypto);
     }
 
     updatedTo(data: sideData) {
-        this.setState({toCrypto: data.crypto});
+        this.updateState("toCrypto", data.crypto);
     }
 
     swap() {
-        /*console.log(this.state, Swap.propertySwapper(this.state));
         this.setState(Swap.propertySwapper(this.state));
-        console.log(this.state);
-        let me = this;
-        window.setTimeout(function() {console.log(me.state)}, 1000);*/
-        this.setState({fromCrypto: this.state.toCrypto, toCrypto: this.state.fromCrypto});
+    }
+
+
+    // the isReady button disabling is throwing errors as in https://github.com/vercel/next.js/discussions/21999
+    isReady() {
+        return this.state.fromCrypto !== "" && this.state.toCrypto !== "";
     }
 
     render() {
@@ -49,7 +60,15 @@ export class Swap extends React.Component<{}, {
                 alignItems: 'center',
             }}
         >
-            <Box>
+            <Box
+                sx={{
+                    my: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
                 <p>Select a token to start swapping.</p>
                 <Side
                     from="true"
@@ -69,7 +88,9 @@ export class Swap extends React.Component<{}, {
                     disable={this.state.fromCrypto}
                     updated={this.updatedTo}
                 />
-                <button>Swap</button>
+                <Button
+                    disabled = {!this.isReady()}
+                >Swap{this.isReady()? "!": ""}</Button>
             </Box>
             <UnderConstruction/>
         </Box>
