@@ -4,16 +4,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-
-import ETHIcon from "../icons/ethereum.svg";
-import MATICIcon from "../icons/polygon.svg";
-import AVAXIcon from "../icons/avalanche.svg";
-import { allCryptos } from '../utility/cryptos';
-
-const icons = new Map<string, string>();
-icons.set("ETH", ETHIcon.src);
-icons.set("MATIC", MATICIcon.src);
-icons.set("AVAX", AVAXIcon.src);
+import { cryptos, getCrypto, getDatum } from "../utility/cryptos";
 
 export function CryptoSelect(props: {show?: string, disable?: string, onChange: (crypto: string) => any}) {
   //const [crypto, setCrypto] = React.useState(props.show || "");
@@ -29,7 +20,7 @@ export function CryptoSelect(props: {show?: string, disable?: string, onChange: 
         key={name}
         disabled={name === props.disable}
     >
-        <img src={icons.get(name)}/>
+        <img src={getDatum("name", name, "iconSrc") as string}/>
         <span>{name}</span>
     </MenuItem>
   }
@@ -45,7 +36,7 @@ export function CryptoSelect(props: {show?: string, disable?: string, onChange: 
           label="Select"
           onChange={handleChange}
         >
-          {allCryptos.map(crypto => makeOption(crypto))}
+          {cryptos.map(crypto => makeOption(crypto.name))}
         </Select>
       </FormControl>
     </Box>
