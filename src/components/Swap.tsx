@@ -34,8 +34,11 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
         bind(this, "swapClicked");
     }
 
+    componentDidUpdate() {
+        if (this.state.fromCrypto === "") this.updateState("fromCrypto", "eth");
+    }
+
     updateState(prop: keyof stateType, val: any) {
-        console.log("updating state");
         let me = this;
         this.setState(function(state) {
             let ns: any = Object.assign({}, state); // newState
@@ -75,7 +78,6 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
                     ns.toAmount = to;
                 }
             }
-            console.log("updating to",ns);
             return ns;
         });
     }
