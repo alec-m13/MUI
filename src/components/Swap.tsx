@@ -25,12 +25,18 @@ export class Swap extends React.Component<{}, stateType> {
         bind(this, "swapClicked");
     }
 
-    updateState(prop: keyof stateType, val: any) {
+    // in case updateState ever needs the fancier mechanism of checking values after updating
+    /*updateState(prop: keyof stateType, val: any) {
         this.setState(function(state) {
             let obj: any = {};
             obj[prop] = val;
             return obj;
         });
+    }*/
+    updateState(prop: keyof stateType, val: any) {
+        let obj: any = {};
+        obj[prop] = val;
+        this.setState(obj);
     }
 
     updatedFrom(data: sideData) {
