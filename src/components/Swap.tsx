@@ -107,12 +107,9 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
     }
 
     swap() {
-        let me = this;
-        this.setState(state => {
-            let ns: any = Swap.propertySwapper(state);
-            me.updateState("toAmount", ns.toAmount); // hook into tests
-            return ns;
-        })
+        let ns: any = Swap.propertySwapper(this.state);
+        this.setState(ns);
+        this.updateState("toAmount", ns.toAmount); // hook into tests
     }
 
     swapClicked() {

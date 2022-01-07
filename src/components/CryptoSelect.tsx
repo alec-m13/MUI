@@ -24,7 +24,7 @@ export function CryptoSelect(props: {
   function makeOption(crypto: Crypto) {
     return <MenuItem
         value={crypto.symbol}
-        key={crypto.id}
+        key={crypto.symbol}
         disabled={crypto.symbol === props.disable}
     >
       <Tooltip title={crypto.name} placement="left">
