@@ -14,7 +14,8 @@ export type data = {
 type propType = {
     from?: string,
     show?: string,
-    disable?: string,
+    disableCrypto?: string,
+    blockAmount?: any,
     amount?: number,
     update: (prop: keyof data, val: any) => any,
     cryptos: Crypto[],
@@ -43,12 +44,13 @@ export class Side extends React.Component<propType, any> {
         >
             <CryptoSelect
                 show={this.props.show}
-                disable={this.props.disable}
+                disable={this.props.disableCrypto}
                 onChange={this.updateCrypto.bind(this)}
                 label={this.hasAtt("from")? "From": "To"}
                 cryptos={this.props.cryptos}
             />
             <CryptoInput
+                disabled={this.props.blockAmount}
                 error={this.state.error}
                 value={this.props.amount}
                 msg={this.state.errorMsg}

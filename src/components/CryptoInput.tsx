@@ -15,7 +15,7 @@ export class CryptoInput extends React.Component<propType, any> {
             error={this.hasAtt("error")}
             value={this.props.value}
             helperText={this.props.msg}
-            disabled={this.hasAtt("disabled")}
+            disabled={this.props.disabled}
             id="crypto-input"
             label="Amount"
             type="number"
