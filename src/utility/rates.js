@@ -3,7 +3,7 @@ const rates = {};
 const loopTime = 60000;
 
 function fetch(callback) {
-    var requestURL = 'https://api.exchangerate.host/latest';
+    var requestURL = 'https://api.coingecko.com/api/v3/exchange_rates';
     var request = new XMLHttpRequest();
     request.open('GET', requestURL);
     request.responseType = 'json';

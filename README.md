@@ -15,3 +15,7 @@ I have been running this app with the following command:
 ```
 npm run dev
 ```
+
+# Current Direction
+
+I am currently integrating CoinGecko to populate this app with current data.
