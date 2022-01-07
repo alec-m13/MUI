@@ -1,6 +1,7 @@
 import { getTableHeadUtilityClass } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
+import { Crypto } from "../utility/cryptos";
 import { CryptoInput } from "./CryptoInput";
 import { CryptoSelect } from "./CryptoSelect";
 
@@ -15,7 +16,8 @@ type propType = {
     show?: string,
     disable?: string,
     amount?: number,
-    update: (prop: keyof data, val: any) => any
+    update: (prop: keyof data, val: any) => any,
+    cryptos: Crypto[],
 }
 
 export class Side extends React.Component<propType, any> {
@@ -44,6 +46,7 @@ export class Side extends React.Component<propType, any> {
                 disable={this.props.disable}
                 onChange={this.updateCrypto.bind(this)}
                 label={this.hasAtt("from")? "From": "To"}
+                cryptos={this.props.cryptos}
             />
             <CryptoInput
                 error={this.state.error}

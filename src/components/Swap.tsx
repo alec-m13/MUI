@@ -5,7 +5,7 @@ import { UnderConstruction } from "./HelpPanels/UnderConstruction";
 import { data as sideData, Side } from "./OneSideOfSwap";
 import { bind } from "../utility/binder";
 import { PropertySwapper } from "../utility/PropertySwapper";
-import { getRate } from "../utility/rates";
+import { Crypto } from "../utility/cryptos";
 
 type stateType = {
     fromCrypto: string,
@@ -14,11 +14,11 @@ type stateType = {
     toAmount: number
 }
 
-export class Swap extends React.Component<{}, stateType> {
+export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
     constructor(props: any) {
         super(props);
         this.state = {
-            fromCrypto: "ETH",
+            fromCrypto: "",
             toCrypto: "",
             fromAmount: 0,
             toAmount: 0
@@ -54,7 +54,6 @@ export class Swap extends React.Component<{}, stateType> {
 
     swap() {
         this.setState(Swap.propertySwapper(this.state));
-        console.log(getRate("ETH", "ETH"));
     }
 
     swapClicked() {
@@ -102,6 +101,7 @@ export class Swap extends React.Component<{}, stateType> {
                     disable={this.state.toCrypto}
                     amount={this.state.fromAmount}
                     update={this.updatedFrom}
+                    cryptos={this.props.cryptos}
                 />
                 <Button
                     size="large"
@@ -115,6 +115,7 @@ export class Swap extends React.Component<{}, stateType> {
                     disable={this.state.fromCrypto}
                     amount={this.state.toAmount}
                     update={this.updatedTo}
+                    cryptos={this.props.cryptos}
                 />
                 <Button
                     disabled={!this.isReady()}

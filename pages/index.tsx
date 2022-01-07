@@ -6,7 +6,7 @@ import { Pool } from '../src/components/Pool';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { setup as setupRateFetcher } from "../src/utility/rates";
+import { Crypto, getCryptos, cryptos as globalCryptos } from "../src/utility/cryptos";
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -43,8 +43,12 @@ function a11yProps(index: number) {
 
 // tabs taken from example at https://mui.com/components/tabs/
 export function Home() {
+  const [cryptos, setCryptos] = React.useState([] as Crypto[]);
+
   React.useEffect(() => {
-    setupRateFetcher();
+    getCryptos(() => {
+      setCryptos(globalCryptos)
+    });
   }, []);
 
   const [value, setValue] = React.useState(0);
@@ -71,7 +75,7 @@ export function Home() {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          <Swap/>
+          <Swap cryptos={cryptos}/>
         </TabPanel>
         <TabPanel value={value} index={1}>
           <Pool/>

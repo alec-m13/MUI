@@ -4,9 +4,16 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { cryptos, getCrypto, getDatum } from "../utility/cryptos";
+import { Crypto, getCrypto, getDatum } from "../utility/cryptos";
+import { Tooltip } from '@mui/material';
 
-export function CryptoSelect(props: {label: string, show?: string, disable?: string, onChange: (crypto: string) => any}) {
+export function CryptoSelect(props: {
+  label: string,
+  show?: string,
+  disable?: string,
+  onChange: (crypto: string) => any,
+  cryptos: Crypto[]
+}) {
   //const [crypto, setCrypto] = React.useState(props.show || "");
 
   const handleChange = (event: any) => {
@@ -14,14 +21,18 @@ export function CryptoSelect(props: {label: string, show?: string, disable?: str
     props.onChange(event.target.value);
   };
 
-  function makeOption(name: string) {
+  function makeOption(crypto: Crypto) {
     return <MenuItem
-        value={name}
-        key={name}
-        disabled={name === props.disable}
+        value={crypto.symbol}
+        key={crypto.id}
+        disabled={crypto.symbol === props.disable}
     >
-        <img src={getDatum("name", name, "iconSrc") as string}/>
-        <span>{name}</span>
+      <Tooltip title={crypto.name} placement="left">
+        <div>
+          <img src={getDatum("id", crypto.id, "iconSrc") as string}/>
+          <span>{crypto.symbol}</span>
+        </div>
+      </Tooltip>
     </MenuItem>
   }
 
@@ -36,7 +47,7 @@ export function CryptoSelect(props: {label: string, show?: string, disable?: str
           label={props.label}
           onChange={handleChange}
         >
-          {cryptos.map(crypto => makeOption(crypto.name))}
+          {props.cryptos.map(crypto => makeOption(crypto))}
         </Select>
       </FormControl>
     </Box>
