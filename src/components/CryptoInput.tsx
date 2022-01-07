@@ -1,23 +1,32 @@
 import { TextField } from "@mui/material";
 import React from "react";
 
-export class CryptoInput extends React.Component<{
-    error: boolean,
+type propType = {
+    disabled?: any
+    error?: any,
     value?: number,
-    msg: string,
+    msg?: string,
     callback: (val: number) => any
-}, any> {
+}
+
+export class CryptoInput extends React.Component<propType, any> {
     render() {
         return <TextField
-            error={this.props.error}
+            error={this.hasAtt("error")}
             value={this.props.value}
             helperText={this.props.msg}
+            disabled={this.hasAtt("disabled")}
             id="crypto-input"
             label="Amount"
             type="number"
             onChange={this.listener.bind(this)}
         />
         
+    }
+
+    // check if a boolean attribute is present
+    hasAtt(name: keyof propType): boolean {
+        return typeof this.props[name] !== "undefined";
     }
 
     listener(e: {target: {value: any}}) {

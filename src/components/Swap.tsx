@@ -8,7 +8,9 @@ import { PropertySwapper } from "../utility/PropertySwapper";
 
 type stateType = {
     fromCrypto: string,
-    toCrypto: string
+    toCrypto: string,
+    fromAmount: number,
+    toAmount: number
 }
 
 export class Swap extends React.Component<{}, stateType> {
@@ -16,7 +18,9 @@ export class Swap extends React.Component<{}, stateType> {
         super(props);
         this.state = {
             fromCrypto: "ETH",
-            toCrypto: ""
+            toCrypto: "",
+            fromAmount: 0,
+            toAmount: 0
         }
         // bind some callback functions
         bind(this, "updatedFrom");
@@ -39,12 +43,12 @@ export class Swap extends React.Component<{}, stateType> {
         this.setState(obj);
     }
 
-    updatedFrom(data: sideData) {
-        this.updateState("fromCrypto", data.crypto);
+    updatedFrom(prop: keyof sideData, val: any) {
+        this.updateState("from"+(prop.charAt(0).toUpperCase())+prop.substring(1) as keyof stateType, val);
     }
 
-    updatedTo(data: sideData) {
-        this.updateState("toCrypto", data.crypto);
+    updatedTo(prop: keyof sideData, val: any) {
+        this.updateState("to"+(prop.charAt(0).toUpperCase())+prop.substring(1) as keyof stateType, val);
     }
 
     swap() {
@@ -58,7 +62,16 @@ export class Swap extends React.Component<{}, stateType> {
 
     // the isReady button disabling is throwing errors as in https://github.com/vercel/next.js/discussions/21999
     isReady() {
-        return this.state.fromCrypto !== "" && this.state.toCrypto !== "";
+        if (1>0) return true;
+        let state = this.state,
+            fromCrypto = state.fromCrypto,
+            toCrypto = state.toCrypto,
+            fromAmount = state.fromAmount,
+            toAmount = state.toAmount;
+        return fromCrypto !== ""
+            && toCrypto !== ""
+            && fromAmount > 0
+            && toAmount > 0;
     }
 
     render() {
@@ -85,7 +98,8 @@ export class Swap extends React.Component<{}, stateType> {
                     from="true"
                     show={this.state.fromCrypto}
                     disable={this.state.toCrypto}
-                    updated={this.updatedFrom}
+                    amount={this.state.fromAmount}
+                    update={this.updatedFrom}
                 />
                 <Button
                     size="large"
@@ -97,7 +111,8 @@ export class Swap extends React.Component<{}, stateType> {
                 <Side
                     show={this.state.toCrypto}
                     disable={this.state.fromCrypto}
-                    updated={this.updatedTo}
+                    amount={this.state.toAmount}
+                    update={this.updatedTo}
                 />
                 <Button
                     disabled={!this.isReady()}

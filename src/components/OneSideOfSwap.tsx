@@ -1,25 +1,31 @@
+import { getTableHeadUtilityClass } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import { CryptoInput } from "./CryptoInput";
 import { CryptoSelect } from "./CryptoSelect";
 
+// upwards callback data
 export type data = {
-    crypto: string
+    crypto: string,
+    amount: number
 }
 
-export class Side extends React.Component<{
+type propType = {
     from?: string,
     show?: string,
     disable?: string,
-    numberValue?: number,
-    updated: (x: data) => any}
-, any> {
+    amount?: number,
+    update: (prop: keyof data, val: any) => any
+}
+
+export class Side extends React.Component<propType, any> {
 
     constructor(props: any) {
         super(props);
         this.state = {
-            error: false,
             errorMsg: "",
+            crypto: "",
+            amount: 0
         }
     }
 
@@ -37,11 +43,11 @@ export class Side extends React.Component<{
                 show={this.props.show}
                 disable={this.props.disable}
                 onChange={this.updateCrypto.bind(this)}
-                label={typeof this.props.from === "string"? "From": "To"}
+                label={this.hasAtt("from")? "From": "To"}
             />
             <CryptoInput
                 error={this.state.error}
-                value={this.props.numberValue}
+                value={this.props.amount}
                 msg={this.state.errorMsg}
                 callback={this.numberChosen.bind(this)}
             />
@@ -49,14 +55,20 @@ export class Side extends React.Component<{
     }
 
     updateCrypto(crypto: string) {
-        this.props.updated({
-            crypto: crypto
-        });
+        this.props.update("crypto", crypto);
+    }
+
+    updateAmount(amount: number) {
+        this.props.update("amount", amount);
     }
 
     errorOut(msg: string) {
-        this.setState({
-            error: msg !== "",
+        if (msg !== "") this.setState({
+            error: "",
+            errorMsg: msg
+        });
+        else this.setState({
+            error: undefined,
             errorMsg: msg
         });
     }
@@ -66,5 +78,11 @@ export class Side extends React.Component<{
         if (val > 100) return this.errorOut("must be less than 100");
         if (typeof this.props.from === "string" && val < 0.1) return this.errorOut("must be at least 0.1");
         this.errorOut("");
+        this.updateAmount(val);
+    }
+
+    // check if a boolean attribute is present
+    hasAtt(name: keyof propType): boolean {
+        return typeof this.props[name] !== "undefined";
     }
 }
