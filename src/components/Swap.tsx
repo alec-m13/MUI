@@ -12,8 +12,7 @@ type stateType = {
     toCrypto: string,
     fromAmount: number,
     toAmount: number,
-    toBlock: any,
-    fromBlock: any,
+    blockAmount: boolean,
     errorMsg: string,
 }
 
@@ -25,9 +24,8 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
             toCrypto: "",
             fromAmount: 0,
             toAmount: 0,
-            toBlock: true,
-            fromBlock: true,
-            errorMsg: "",
+            blockAmount: true,
+            errorMsg: "Uninitiated",
         }
         // bind some callback functions
         bind(this, "updatedFrom");
@@ -36,20 +34,48 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
         bind(this, "swapClicked");
     }
 
-    // in case updateState ever needs the fancier mechanism of checking values after updating
     updateState(prop: keyof stateType, val: any) {
+        console.log("updating state");
         let me = this;
         this.setState(function(state) {
             let ns: any = Object.assign({}, state); // newState
             ns[prop] = val;
-            let errorMsg = "", throwError: string;
-            if (prop === "errorMsg") errorMsg = val;
-            if (ns.fromCrypto === "") {
-                throwError = "Must choose from";
-                if (errorMsg !== throwError) me.updateState("errorMsg", throwError);
-            } else if (ns.toCrypto === "") {
-
+            ns.blockAmount = false;
+            ns.errorMsg = "";
+            if (ns.fromCrypto === "" || ns.toCrypto === "") { // cryptos not chosen
+                ns.blockAmount = true;
+                ns.errorMsg = (ns.fromCrypto === "")? "Must choose from": "Must choose to";
+            } else {
+                let rate = me.getRate(ns);
+                let from = ns.fromAmount, to = ns.toAmount;
+                if (prop === "toAmount") from = to / rate;
+                else to = from * rate;
+                // cutoffs
+                if (to < 0) {
+                    to = 0;
+                    from = 0;
+                } else if (to > 100) {
+                    to = 100;
+                    from = to / rate;
+                }
+                if (from < 0.1) {
+                    from = 0.1;
+                    to = rate * from;
+                } else if (from > 100) {
+                    from = 100;
+                    to = rate * from;
+                }
+                // if cutoffs didn't work...
+                if (to < 0 || to > 100) {
+                    ns.errorMsg = "Cannot trade: price difference too large";
+                    ns.blockAmount = true;
+                    ns.fromAmount = ns.toAmount = 0;
+                } else {
+                    ns.fromAmount = from;
+                    ns.toAmount = to;
+                }
             }
+            console.log("updating to",ns);
             return ns;
         });
     }
@@ -59,43 +85,17 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
         this.setState(obj);
     }*/
 
-    getRate(): number {
+    getRate(state = this.state): number {
         // rates returns $/token, getRate returns token (to) / token (from)
-        return (rates.get(getDatum("symbol", this.state.fromCrypto, "id")) || 0) /
-            (rates.get(getDatum("symbol", this.state.toCrypto, "id")) || Infinity);
+        return (rates.get(getDatum("symbol", state.fromCrypto, "id")) || 0) /
+            (rates.get(getDatum("symbol", state.toCrypto, "id")) || Infinity);
     }
 
     updatedFrom(prop: keyof sideData, val: any) {
-        if (prop === "amount") {
-            let rate = this.getRate();
-            let other = val * rate;
-            if (other > 100) {
-                other = 100;
-                val = 100 / rate; // maxed out
-            }
-            if (val > 100) {
-                val = 100;
-                other = val * rate;
-            }
-            this.updateState("toAmount", other);
-        }
         this.updateState("from"+(prop.charAt(0).toUpperCase())+prop.substring(1) as keyof stateType, val);
     }
 
     updatedTo(prop: keyof sideData, val: any) {
-        if (prop === "amount") {
-            let rate = this.getRate();
-            let other = val / rate;
-            if (other > 100) {
-                other = 100;
-                val = other * rate; // maxed out
-            }
-            if (val > 100) {
-                val = 100;
-                other = val / rate;
-            }
-            this.updateState("fromAmount", other);
-        }
         this.updateState("to"+(prop.charAt(0).toUpperCase())+prop.substring(1) as keyof stateType, val);
     }
 
@@ -105,11 +105,16 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
     }
 
     swap() {
-        this.setState(Swap.propertySwapper(this.state));
+        let me = this;
+        this.setState(state => {
+            let ns: any = Swap.propertySwapper(state);
+            me.updateState("toAmount", ns.toAmount); // hook into tests
+            return ns;
+        })
     }
 
     swapClicked() {
-        alert("swapping");
+        alert("swapping " + this.state.fromAmount + " " + this.state.fromCrypto + " for " + this.state.toAmount + " " + this.state.toCrypto);
     }
 
     render() {
@@ -136,7 +141,7 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
                     from="true"
                     show={this.state.fromCrypto}
                     disableCrypto={this.state.toCrypto}
-                    blockAmount={this.state.fromBlock}
+                    blockAmount={this.state.blockAmount}
                     amount={this.state.fromAmount}
                     update={this.updatedFrom}
                     cryptos={this.props.cryptos}
@@ -151,15 +156,16 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
                 <Side
                     show={this.state.toCrypto}
                     disableCrypto={this.state.fromCrypto}
-                    blockAmount={this.state.toBlock}
+                    blockAmount={this.state.blockAmount}
                     amount={this.state.toAmount}
                     update={this.updatedTo}
                     cryptos={this.props.cryptos}
                 />
+                <Typography>{this.state.errorMsg}</Typography>
                 <Button
                     disabled={this.state.errorMsg === ""? undefined: true}
                     onClick={this.swapClicked}
-                >{this.state.errorMsg || "Swap!"}</Button>
+                >Swap{this.state.errorMsg===""? "!": ""}</Button>
             </Box>
             <UnderConstruction/>
         </Box>

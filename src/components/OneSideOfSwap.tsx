@@ -15,7 +15,7 @@ type propType = {
     from?: string,
     show?: string,
     disableCrypto?: string,
-    blockAmount?: any,
+    blockAmount?: boolean,
     amount?: number,
     update: (prop: keyof data, val: any) => any,
     cryptos: Crypto[],
@@ -50,7 +50,7 @@ export class Side extends React.Component<propType, any> {
                 cryptos={this.props.cryptos}
             />
             <CryptoInput
-                disabled={this.props.blockAmount}
+                disabled={this.props.blockAmount? true: undefined}
                 error={this.state.error}
                 value={this.props.amount}
                 msg={this.state.errorMsg}
