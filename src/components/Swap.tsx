@@ -1,4 +1,4 @@
-import { Button, Typography } from "@mui/material";
+import { Button, Typography, Grid } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import { HelpPanel } from "./HelpPanel";
@@ -21,6 +21,7 @@ type stateType = {
     toAmount: number,
     blockAmounts: boolean,
     errorMsg: string, // empty string means no error/can swap, nonempty string means error/can't swap
+    recentSwap: any,
 }
 
 export class Swap extends React.Component<propsType, stateType> {
@@ -35,6 +36,7 @@ export class Swap extends React.Component<propsType, stateType> {
             toAmount: 0,
             blockAmounts: true,
             errorMsg: "Uninitiated",
+            recentSwap: false,
         }
         // bind some callback functions
         bind(this, "updatedFrom");
@@ -56,6 +58,7 @@ export class Swap extends React.Component<propsType, stateType> {
         ns[prop] = val;
         ns.blockAmounts = false;
         ns.errorMsg = "";
+        ns.recentSwap = false;
         if (ns.fromCrypto === "" || ns.toCrypto === "") { // cryptos not chosen
             ns.blockAmounts = true;
             ns.errorMsg = (ns.fromCrypto === "")? "Must choose from": "Must choose to";
@@ -93,7 +96,7 @@ export class Swap extends React.Component<propsType, stateType> {
         this.setState(ns);
     }
 
-    getRate(state = this.state): number {
+    getRate(state: any = this.state): number {
         // rates returns $/token, getRate returns token (to) / token (from)
         return (rates.get(getDatum("symbol", state.fromCrypto, "id")) || 0) /
             (rates.get(getDatum("symbol", state.toCrypto, "id")) || Infinity);
@@ -117,7 +120,41 @@ export class Swap extends React.Component<propsType, stateType> {
     }
 
     swapClicked() {
-        alert("swapping " + this.state.fromAmount + " " + this.state.fromCrypto + " for " + this.state.toAmount + " " + this.state.toCrypto);
+        let gas = 0.0000005;
+        let priceImpact = "0.00%";
+        let allowedSlippage = "0.50%";
+        let minimumReceived = this.state.toAmount - (gas * this.getRate({
+            toCrypto: this.state.toCrypto,
+            fromCrypto: "eth"
+        }));
+        this.setState({
+            recentSwap: <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+            <Grid item xs={6}>
+              Liquidity provider fee
+            </Grid>
+            <Grid item xs={6}>
+              {gas} eth
+            </Grid>
+            <Grid item xs={6}>
+              Price impact
+            </Grid>
+            <Grid item xs={6}>
+              {priceImpact}
+            </Grid>
+            <Grid item xs={6}>
+                Allowed slippage
+            </Grid>
+            <Grid item xs={6}>
+                {allowedSlippage}
+            </Grid>
+            <Grid item xs={6}>
+                Minimum received
+            </Grid>
+            <Grid item xs={6}>
+                {minimumReceived}
+            </Grid>
+          </Grid>
+        })
     }
 
     connectWallet() {
@@ -126,6 +163,9 @@ export class Swap extends React.Component<propsType, stateType> {
     }
 
     getHelpPanel() {
+        if (this.state.recentSwap) return <HelpPanel title="Transaction details">
+            {this.state.recentSwap}
+        </HelpPanel>
         if (this.state.walletConnected) {
             if (this.state.fromCrypto === "" || this.state.toCrypto === "") {
                 return <HelpPanel title="Hint">
@@ -144,9 +184,9 @@ export class Swap extends React.Component<propsType, stateType> {
 
     getRateMsg() {
         if (this.state.toCrypto === "" || this.state.fromCrypto === "") return;
-        let rate = 1 / this.getRate();
-        if (rate === 0 || rate === Infinity || Number.isNaN(rate)) return;
-        return "1"+this.state.toCrypto+" = "+rate+this.state.fromCrypto;
+        let rate = (1 / this.getRate()) + "";
+        rate = rate.substring(0, 8);
+        return "1 "+this.state.toCrypto+" = "+rate+" "+this.state.fromCrypto;
     }
 
     render() {
