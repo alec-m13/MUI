@@ -1,4 +1,4 @@
-import { TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import React from "react";
 
 type propType = {
@@ -6,7 +6,8 @@ type propType = {
     error?: any,
     value?: number,
     msg?: string,
-    callback: (val: number) => any
+    callback: (val: number) => any,
+    maxButton?: () => any,
 }
 
 export class CryptoInput extends React.Component<propType, any> {
@@ -20,8 +21,14 @@ export class CryptoInput extends React.Component<propType, any> {
             label="Amount"
             type="number"
             onChange={this.listener.bind(this)}
+            InputProps={{endAdornment: this.getButton()}}
         />
         
+    }
+
+    getButton() {
+        if (this.props.disabled || !this.props.maxButton) return;
+        return <Button onClick={this.props.maxButton}>MAX</Button>
     }
 
     // check if a boolean attribute is present

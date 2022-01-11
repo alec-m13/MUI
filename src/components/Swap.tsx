@@ -5,7 +5,7 @@ import { HelpPanel } from "./HelpPanel";
 import { data as sideData, Side } from "./OneSideOfSwap";
 import { bind } from "../utility/binder";
 import { PropertySwapper } from "../utility/PropertySwapper";
-import { Crypto, getDatum, rates } from "../utility/cryptos";
+import { Crypto, fillWallet, getDatum, rates } from "../utility/cryptos";
 
 type propsType = {
     cryptos: Crypto[],
@@ -13,6 +13,7 @@ type propsType = {
 
 // keep the from*/to* pattern for sided states
 type stateType = {
+    wallet?: Map<string, number>,
     walletConnected: boolean,
     fromCrypto: string,
     toCrypto: string,
@@ -26,6 +27,7 @@ export class Swap extends React.Component<propsType, stateType> {
     constructor(props: any) {
         super(props);
         this.state = {
+            wallet: new Map(),
             walletConnected: false,
             fromCrypto: "",
             toCrypto: "",
@@ -62,6 +64,7 @@ export class Swap extends React.Component<propsType, stateType> {
             let from = ns.fromAmount, to = ns.toAmount;
             if (prop === "toAmount") from = to / rate;
             else to = from * rate;
+            let maxFrom = Math.min(100, ns.wallet.get(ns.fromCrypto));
             // cutoffs
             if (to < 0) {
                 to = 0;
@@ -73,8 +76,8 @@ export class Swap extends React.Component<propsType, stateType> {
             if (from < 0.1) {
                 from = 0.1;
                 to = rate * from;
-            } else if (from > 100) {
-                from = 100;
+            } else if (from > maxFrom) {
+                from = maxFrom;
                 to = rate * from;
             }
             // if cutoffs didn't work...
@@ -118,12 +121,21 @@ export class Swap extends React.Component<propsType, stateType> {
     }
 
     connectWallet() {
+        fillWallet(this.state.wallet || new Map());
         this.updateState("walletConnected", true);
     }
 
     getHelpPanel() {
         if (this.state.walletConnected) {
-            return <p>more...</p>
+            if (this.state.fromCrypto === "" || this.state.toCrypto === "") {
+                return <HelpPanel title="Hint">
+                    You can choose any token on the list. If there is some missing you can add it by the <b>contact address.</b>
+                </HelpPanel>
+            } else {
+                return <HelpPanel title="Hint">
+                    Choose the amount you want to swap on your balance. You can check it beneath the amount field you want to swap :D
+                </HelpPanel>
+            }
         } else return <HelpPanel title="Connect your wallet">
             <Typography>To start using the app your wallet needs to be connected :)</Typography>
             <Button onClick={this.connectWallet}>Connect wallet</Button>
@@ -159,6 +171,7 @@ export class Swap extends React.Component<propsType, stateType> {
                     amount={this.state.fromAmount}
                     update={this.updatedFrom}
                     cryptos={this.props.cryptos}
+                    maxAmount={this.state.walletConnected? "Balance "+(this.state.wallet?.get(this.state.fromCrypto))+this.state.fromCrypto: undefined}
                 />
                 <Button
                     size="large"

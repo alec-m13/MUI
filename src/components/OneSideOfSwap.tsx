@@ -19,11 +19,13 @@ type propType = {
     amount: number,
     update: (prop: keyof data, val: any) => any,
     cryptos: Crypto[],
+    maxAmount?: string
 }
 
 export class Side extends React.Component<propType, any> {
 
     render() {
+        let me = this;
         return <Box
         sx={{
             my: 4,
@@ -45,6 +47,8 @@ export class Side extends React.Component<propType, any> {
                 disabled={this.props.blockAmount}
                 value={this.props.amount}
                 callback={this.updateAmount.bind(this)}
+                msg={this.props.maxAmount}
+                maxButton={this.props.sideName==="From"? () => me.updateAmount(Infinity): undefined}
             />
         </Box>
     }

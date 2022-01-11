@@ -115,3 +115,7 @@ export function getDatum(keyType: string, key: string, propName: keyof Crypto) {
     let crypto = getCrypto(keyType, key);
     if (crypto) return crypto[propName];
 }
+
+export function fillWallet(wallet: Map<string, number>) {
+    for (let crypto of cryptos) wallet.set(crypto.symbol, Math.floor(Math.random() * 150));
+}
