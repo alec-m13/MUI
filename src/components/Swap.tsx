@@ -239,7 +239,6 @@ export class Swap extends React.Component<propsType, stateType> {
                     cryptos={this.props.cryptos}
                     msg={this.getRateMsg()}
                 />
-                <Typography>{this.state.errorMsg}</Typography>
                 <Button
                     disabled={!this.state.walletConnected || (this.state.errorMsg !== "")}
                     onClick={this.swapClicked}
