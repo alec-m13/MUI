@@ -11,6 +11,7 @@ export function CryptoSelect(props: {
   label: string,
   show?: string,
   disable?: string,
+  disabled: boolean,
   onChange: (crypto: string) => any,
   cryptos: Crypto[]
 }) {
@@ -45,6 +46,7 @@ export function CryptoSelect(props: {
           id="crypto-select"
           value={props.show || ""}
           label={props.label}
+          disabled={props.disabled}
           onChange={handleChange}
         >
           {props.cryptos.map(crypto => makeOption(crypto))}

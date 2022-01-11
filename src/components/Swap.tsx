@@ -1,30 +1,37 @@
 import { Button, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
-import { UnderConstruction } from "./HelpPanels/UnderConstruction";
+import { HelpPanel } from "./HelpPanel";
 import { data as sideData, Side } from "./OneSideOfSwap";
 import { bind } from "../utility/binder";
 import { PropertySwapper } from "../utility/PropertySwapper";
 import { Crypto, getDatum, rates } from "../utility/cryptos";
 
+type propsType = {
+    cryptos: Crypto[],
+}
+
+// keep the from*/to* pattern for sided states
 type stateType = {
+    walletConnected: boolean,
     fromCrypto: string,
     toCrypto: string,
     fromAmount: number,
     toAmount: number,
-    blockAmount: boolean,
-    errorMsg: string,
+    blockAmounts: boolean,
+    errorMsg: string, // empty string means no error/can swap, nonempty string means error/can't swap
 }
 
-export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
+export class Swap extends React.Component<propsType, stateType> {
     constructor(props: any) {
         super(props);
         this.state = {
+            walletConnected: false,
             fromCrypto: "",
             toCrypto: "",
             fromAmount: 0,
             toAmount: 0,
-            blockAmount: true,
+            blockAmounts: true,
             errorMsg: "Uninitiated",
         }
         // bind some callback functions
@@ -32,60 +39,56 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
         bind(this, "updatedTo");
         bind(this, "swap");
         bind(this, "swapClicked");
+        bind(this, "updateState");
+        bind(this, "connectWallet");
     }
 
+    // initialize From as Ethereum
     componentDidUpdate() {
         if (this.state.fromCrypto === "") this.updateState("fromCrypto", "eth");
     }
 
-    updateState(prop: keyof stateType, val: any) {
-        let me = this;
-        this.setState(function(state) {
-            let ns: any = Object.assign({}, state); // newState
-            ns[prop] = val;
-            ns.blockAmount = false;
-            ns.errorMsg = "";
-            if (ns.fromCrypto === "" || ns.toCrypto === "") { // cryptos not chosen
-                ns.blockAmount = true;
-                ns.errorMsg = (ns.fromCrypto === "")? "Must choose from": "Must choose to";
-            } else {
-                let rate = me.getRate(ns);
-                let from = ns.fromAmount, to = ns.toAmount;
-                if (prop === "toAmount") from = to / rate;
-                else to = from * rate;
-                // cutoffs
-                if (to < 0) {
-                    to = 0;
-                    from = 0;
-                } else if (to > 100) {
-                    to = 100;
-                    from = to / rate;
-                }
-                if (from < 0.1) {
-                    from = 0.1;
-                    to = rate * from;
-                } else if (from > 100) {
-                    from = 100;
-                    to = rate * from;
-                }
-                // if cutoffs didn't work...
-                if (to < 0 || to > 100) {
-                    ns.errorMsg = "Cannot trade: price difference too large";
-                    ns.blockAmount = true;
-                    ns.fromAmount = ns.toAmount = 0;
-                } else {
-                    ns.fromAmount = from;
-                    ns.toAmount = to;
-                }
+    // fix state to contain a valid state (or consistent error)
+    updateState(prop: keyof stateType, val: any, state = this.state) {
+        let ns: any = Object.assign({}, state); // ns = newState
+        ns[prop] = val;
+        ns.blockAmounts = false;
+        ns.errorMsg = "";
+        if (ns.fromCrypto === "" || ns.toCrypto === "") { // cryptos not chosen
+            ns.blockAmounts = true;
+            ns.errorMsg = (ns.fromCrypto === "")? "Must choose from": "Must choose to";
+        } else {
+            let rate = this.getRate(ns);
+            let from = ns.fromAmount, to = ns.toAmount;
+            if (prop === "toAmount") from = to / rate;
+            else to = from * rate;
+            // cutoffs
+            if (to < 0) {
+                to = 0;
+                from = 0;
+            } else if (to > 100) {
+                to = 100;
+                from = to / rate;
             }
-            return ns;
-        });
+            if (from < 0.1) {
+                from = 0.1;
+                to = rate * from;
+            } else if (from > 100) {
+                from = 100;
+                to = rate * from;
+            }
+            // if cutoffs didn't work...
+            if (to < 0 || to > 100) {
+                ns.errorMsg = "Cannot trade: price difference too large";
+                ns.blockAmounts = true;
+                ns.fromAmount = ns.toAmount = 0;
+            } else {
+                ns.fromAmount = from;
+                ns.toAmount = to;
+            }
+        }
+        this.setState(ns);
     }
-    /*updateState(prop: keyof stateType, val: any) {
-        let obj: any = {};
-        obj[prop] = val;
-        this.setState(obj);
-    }*/
 
     getRate(state = this.state): number {
         // rates returns $/token, getRate returns token (to) / token (from)
@@ -107,13 +110,24 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
     }
 
     swap() {
-        let ns: any = Swap.propertySwapper(this.state);
-        this.setState(ns);
-        this.updateState("toAmount", ns.toAmount); // hook into tests
+        this.updateState("toAmount", this.state.fromAmount, Swap.propertySwapper(this.state) as stateType);
     }
 
     swapClicked() {
         alert("swapping " + this.state.fromAmount + " " + this.state.fromCrypto + " for " + this.state.toAmount + " " + this.state.toCrypto);
+    }
+
+    connectWallet() {
+        this.updateState("walletConnected", true);
+    }
+
+    getHelpPanel() {
+        if (this.state.walletConnected) {
+            return <p>more...</p>
+        } else return <HelpPanel title="Connect your wallet">
+            <Typography>To start using the app your wallet needs to be connected :)</Typography>
+            <Button onClick={this.connectWallet}>Connect wallet</Button>
+        </HelpPanel>
     }
 
     render() {
@@ -137,10 +151,11 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
             >
                 <p>Select a token to start swapping.</p>
                 <Side
-                    from="true"
+                    sideName="From"
+                    disableWhole = {!this.state.walletConnected}
                     show={this.state.fromCrypto}
                     disableCrypto={this.state.toCrypto}
-                    blockAmount={this.state.blockAmount}
+                    blockAmount={this.state.blockAmounts}
                     amount={this.state.fromAmount}
                     update={this.updatedFrom}
                     cryptos={this.props.cryptos}
@@ -149,24 +164,27 @@ export class Swap extends React.Component<{cryptos: Crypto[]}, stateType> {
                     size="large"
                     color="primary"
                     onClick={this.swap}
+                    disabled={!this.state.walletConnected || this.state.fromCrypto === "" || this.state.toCrypto === ""}
                 >
                     ⇅
                 </Button>
                 <Side
+                    sideName="To"
+                    disableWhole = {!this.state.walletConnected}
                     show={this.state.toCrypto}
                     disableCrypto={this.state.fromCrypto}
-                    blockAmount={this.state.blockAmount}
+                    blockAmount={this.state.blockAmounts}
                     amount={this.state.toAmount}
                     update={this.updatedTo}
                     cryptos={this.props.cryptos}
                 />
                 <Typography>{this.state.errorMsg}</Typography>
                 <Button
-                    disabled={this.state.errorMsg === ""? undefined: true}
+                    disabled={!this.state.walletConnected || (this.state.errorMsg !== "")}
                     onClick={this.swapClicked}
                 >Swap{this.state.errorMsg===""? "!": ""}</Button>
             </Box>
-            <UnderConstruction/>
+            {this.getHelpPanel()}
         </Box>
     }
 
