@@ -20,4 +20,4 @@ npm run dev
 
 # Current Direction
 
-Cleaning up the swap element disabler checks.
+Wrapping up the task as a whole.
