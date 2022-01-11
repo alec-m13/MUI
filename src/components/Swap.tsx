@@ -242,7 +242,7 @@ export class Swap extends React.Component<propsType, stateType> {
                 <Button
                     disabled={!this.state.walletConnected || (this.state.errorMsg !== "")}
                     onClick={this.swapClicked}
-                >Swap{this.state.errorMsg===""? "!": ""}</Button>
+                >{this.state.errorMsg || "Swap"}</Button>
             </Box>
             {this.getHelpPanel()}
         </Box>
