@@ -142,6 +142,13 @@ export class Swap extends React.Component<propsType, stateType> {
         </HelpPanel>
     }
 
+    getRateMsg() {
+        if (this.state.toCrypto === "" || this.state.fromCrypto === "") return;
+        let rate = 1 / this.getRate();
+        if (rate === 0 || rate === Infinity || Number.isNaN(rate)) return;
+        return "1"+this.state.toCrypto+" = "+rate+this.state.fromCrypto;
+    }
+
     render() {
         return <Box
             sx={{
@@ -190,6 +197,7 @@ export class Swap extends React.Component<propsType, stateType> {
                     amount={this.state.toAmount}
                     update={this.updatedTo}
                     cryptos={this.props.cryptos}
+                    msg={this.getRateMsg()}
                 />
                 <Typography>{this.state.errorMsg}</Typography>
                 <Button
