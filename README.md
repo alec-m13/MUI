@@ -15,3 +15,7 @@ I have been running this app with the following command:
 ```
 npm run dev
 ```
+
+# Currently Working On
+
+Fixing transaction details page to be correctly computed
