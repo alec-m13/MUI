@@ -1,4 +1,4 @@
-import { Button, Typography, Grid } from "@mui/material";
+import { Button, Typography, Grid, Divider } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import { HelpPanel } from "./HelpPanel";
@@ -121,39 +121,48 @@ export class Swap extends React.Component<propsType, stateType> {
 
     swapClicked() {
         let gas = 0.0000005;
-        let priceImpact = "0.00%";
-        let allowedSlippage = "0.50%";
-        let minimumReceived = this.state.toAmount - (gas * this.getRate({
-            toCrypto: this.state.toCrypto,
+        let effectiveFrom = this.state.fromAmount - gas * this.getRate({
+            toCrypto: this.state.fromCrypto,
             fromCrypto: "eth"
-        }));
+        });
+        let priceImpact: any = (this.state.fromAmount - effectiveFrom) / (100 * this.state.fromAmount);
+        let allowedSlippage = "0.50%";
+        let minimumReceived = effectiveFrom * this.getRate();
         this.setState({
-            recentSwap: <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-            <Grid item xs={6}>
-              Liquidity provider fee
-            </Grid>
-            <Grid item xs={6}>
-              {gas} eth
-            </Grid>
-            <Grid item xs={6}>
-              Price impact
-            </Grid>
-            <Grid item xs={6}>
-              {priceImpact}
-            </Grid>
-            <Grid item xs={6}>
-                Allowed slippage
-            </Grid>
-            <Grid item xs={6}>
-                {allowedSlippage}
-            </Grid>
-            <Grid item xs={6}>
-                Minimum received
-            </Grid>
-            <Grid item xs={6}>
-                {minimumReceived}
-            </Grid>
-          </Grid>
+            recentSwap: [
+                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                    <Grid item xs={6}>
+                    Liquidity provider fee
+                    </Grid>
+                    <Grid item xs={6}>
+                    {gas.toLocaleString(undefined, {minimumSignificantDigits: 1})} eth
+                    </Grid>
+                    <Grid item xs={6}>
+                    Price impact
+                    </Grid>
+                    <Grid item xs={6}>
+                    {priceImpact.toLocaleString(undefined, {maximumFractionDigits: 2, minimumFractionDigits: 2})}%
+                    </Grid>
+                    <Grid item xs={6}>
+                        Allowed slippage
+                    </Grid>
+                    <Grid item xs={6}>
+                        {allowedSlippage}
+                    </Grid>
+                    <Grid item xs={6}>
+                        Minimum received
+                    </Grid>
+                    <Grid item xs={6}>
+                        {minimumReceived.toLocaleString(undefined, {maximumSignificantDigits: 5})} {this.state.toCrypto}
+                    </Grid>
+                </Grid>,
+                <Divider />,
+                <Typography>
+                    Output is estimated. You will receive at least
+                    {" " + minimumReceived.toLocaleString(undefined, {maximumSignificantDigits: 5}) + " " + this.state.toCrypto + " "}
+                    or the transaction will revert.
+                </Typography>
+            ]
         })
     }
 
