@@ -130,33 +130,33 @@ export class Swap extends React.Component<propsType, stateType> {
         let minimumReceived = effectiveFrom * this.getRate();
         this.setState({
             recentSwap: [
-                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                     <Grid item xs={6}>
                     Liquidity provider fee
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                     {gas.toLocaleString(undefined, {minimumSignificantDigits: 1})} eth
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                     Price impact
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                     {priceImpact.toLocaleString(undefined, {maximumFractionDigits: 2, minimumFractionDigits: 2})}%
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                         Allowed slippage
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                         {allowedSlippage}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                         Minimum received
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item sm={6}>
                         {minimumReceived.toLocaleString(undefined, {maximumSignificantDigits: 5})} {this.state.toCrypto}
                     </Grid>
                 </Grid>,
-                <Divider />,
+                <Divider style={{width:'100%'}}/>,
                 <Typography>
                     Output is estimated. You will receive at least
                     {" " + minimumReceived.toLocaleString(undefined, {maximumSignificantDigits: 5}) + " " + this.state.toCrypto + " "}

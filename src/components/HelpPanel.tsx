@@ -11,12 +11,13 @@ export class HelpPanel extends React.Component<propsType, any> {
     render() {
         return <Box
             sx={{
+                margin: "2em",
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
                 bgcolor: "background.dark",
-                minWidth: "20em",
+                width: "20em",
                 height: "100px",
             }}
         >

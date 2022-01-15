@@ -6,10 +6,13 @@ export class Circle extends React.Component {
     render() {
         return <Box
             sx={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "40px",
-                bgcolor: "primary.dark",
+                padding: "1.5em",
+                margin: "2em",
+                borderRadius: "50%",
+                borderStyle: "solid",
+                borderWidth: "2px",
+                borderColor: "primary.main",
+                bgcolor: "primary.main",
             }}
         >
         </Box>
